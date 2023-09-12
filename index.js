@@ -78,6 +78,31 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateUser = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: {
+          name: updateUser.name,
+          university: updateUser.university,
+          address: updateUser.address,
+        },
+      };
+      const result = await usersCollection.updateOne(query, updateDoc, options);
+
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log("connected. You successfully connected to MongoDB!");
   } finally {
