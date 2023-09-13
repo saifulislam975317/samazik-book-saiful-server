@@ -28,6 +28,9 @@ async function run() {
 
     const PostsCollection = client.db("samazikBookDb").collection("usersPosts");
     const usersCollection = client.db("samazikBookDb").collection("users");
+    const selectedCollection = client
+      .db("samazikBookDb")
+      .collection("selected");
 
     app.post("/usersPost", async (req, res) => {
       const newPost = req.body;
@@ -52,14 +55,26 @@ async function run() {
       const newLike = req.body;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
-
       const updateDoc = {
         $set: {
-          totalLikes: newLike.countLikes,
+          totalLikes: newLike.likesCount,
         },
       };
       const result = await PostsCollection.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
 
+    // selected api
+    app.post("/selected", async (req, res) => {
+      const selectedItems = req.body;
+      const result = await selectedCollection.insertOne(selectedItems);
+      res.send(result);
+    });
+
+    app.get("/selected/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await selectedCollection.find(query).toArray();
       res.send(result);
     });
 
