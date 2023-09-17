@@ -64,6 +64,28 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/comment/:id", async (req, res) => {
+      const id = req.params.id;
+      const newComment = req.body;
+      console.log(id, newComment);
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          totalComments: newComment.text,
+        },
+      };
+      const result = await PostsCollection.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
+
+    app.get("/comment/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await PostsCollection.findOne(query);
+      res.send(result);
+    });
+
     // selected api
     app.post("/selected", async (req, res) => {
       const selectedItems = req.body;
